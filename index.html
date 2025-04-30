@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <title>Penetron Тест</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    button {
+      font-size: 1em;
+      padding: 10px 20px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #feedback {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="question" id="question">Зареждане...</div>
+  <button onclick="startRecognition()">🎤 Говори</button>
+  <div id="feedback"></div>
+</div>
+
+<script>
+  const questions = [
+    {
+      text: "Какво представлява Penetron?",
+      keywords: ["хидроизолация", "кристализация", "бетон"]
+    },
+    {
+      text: "За какво се използва Penetron?",
+      keywords: ["подпорни", "фундаменти", "басейни", "резервоари"]
+    },
+    {
+      text: "Разходна норма на Penetron?",
+      keywords: ["0.7", "0.8", "1.1", "1.6", "килограма"]
+    },
+    {
+      text: "Подготовка на основата за Penetron?",
+      keywords: ["водоструене", "пясъкоструене", "водонаситяване"]
+    },
+    {
+      text: "Как се смесва Penetron?",
+      keywords: ["вода", "гъсто масло", "разбъркване"]
+    },
+    {
+      text: "Какви основни характеристики има Penetron?",
+      keywords: ["капиляри", "кристали", "диша"]
+    },
+    {
+      text: "Комбинира ли се с други материали? Защо и как?",
+      keywords: ["Penecrete", "ремонт", "пукнатини"]
+    },
+    {
+      text: "Специални забележки при полагане на Penetron?",
+      keywords: ["температури", "слънце", "замръзване"]
+    }
+  ];
+
+  let currentQuestion = 0;
+
+  const questionEl = document.getElementById("question");
+  const feedbackEl = document.getElementById("feedback");
+
+  function loadQuestion() {
+    if (currentQuestion >= questions.length) {
+      questionEl.innerText = "Тестът е завършен! Браво!";
+      return;
+    }
+    questionEl.innerText = questions[currentQuestion].text;
+    feedbackEl.innerText = "";
+  }
+
+  loadQuestion();
+
+  function startRecognition() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "bg-BG";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      const keywords = questions[currentQuestion].keywords;
+      const matches = keywords.filter(word => transcript.includes(word));
+
+      if (matches.length >= Math.ceil(keywords.length * 0.5)) {
+        feedbackEl.innerText = "✅ Правилен отговор!";
+        currentQuestion++;
+        setTimeout(loadQuestion, 1500);
+      } else {
+        feedbackEl.innerText = "❌ Опитай отново. Помисли върху ключови думи.";
+      }
+    };
+
+    recognition.onerror = function(event) {
+      feedbackEl.innerText = "Грешка при разпознаване: " + event.error;
+    };
+  }
+</script>
+</body>
+</html>
